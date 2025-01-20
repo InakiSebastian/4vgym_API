@@ -18,6 +18,15 @@ class InstructorService
     {
         //DEVUELVE [{},{},{}]
         return $this->entityManager->getRepository(Instructor::class)->findAll();
+
+    }
+
+    public function createInstructor(Instructor $instructor): Instructor
+    {
+        $this->entityManager->persist($instructor);
+        $this->entityManager->flush();
+
+        return $instructor;
     }
 
  

@@ -20,7 +20,7 @@ final class InstructorController extends AbstractController
     {
     }
 
-    #[Route('/instructor', name: 'app_instructor')]
+    #[Route('/monitors', name: 'app_instructor')]
     public function allInstructors(LoggerInterface $logger): JsonResponse
     {
         $test = $this->instructorService->getAllInstructors();
