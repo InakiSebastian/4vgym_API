@@ -46,7 +46,7 @@ class Activity
         return $this->duration;
     }
 
-    public function setDuration(?int $duration): static
+    public function setDuration(?int $duration = 90): static
     {
         $this->duration = $duration;
 
@@ -64,4 +64,5 @@ class Activity
 
         return $this;
     }
+
 }
