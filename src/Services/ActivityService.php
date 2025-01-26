@@ -154,8 +154,18 @@ class ActivityService
     {
         return new ActivityNewDTO(
             date: new DateTime('2025-01-01'),
-            duration: 60,
+            duration: 90,
             activityTypeId: 1,
+            instructorIds: [1]
+        );
+    }
+
+    private function createForEdit(): ActivityNewDTO
+    {
+        return new ActivityNewDTO(
+            date: new DateTime('2025-03-01'),
+            duration: 90,
+            activityTypeId: 2,
             instructorIds: [1, 2]
         );
     }
@@ -164,5 +174,24 @@ class ActivityService
     {
         $hardcodedActivity = $this->createHardcodedActivity();
         return $this->addActivity($hardcodedActivity);
+    }
+
+    public function editHardcodedActivity(): ActivityDTO{
+        $activityNew = $this->createForEdit();
+       return $this->editActivity(3, $activityNew);
+    }
+
+    public function deleteActivityHardcoded(): bool
+    {
+        $activity = $this->activityRepository->find(3);
+        if (!$activity) {
+            return false;
+        }
+        /*foreach ($activity->getActivityInstructors() as $ai) {
+            $this->entityManager->remove($ai);
+        }*/
+        $this->entityManager->remove($activity);
+        $this->entityManager->flush();
+        return true;
     }
 }
