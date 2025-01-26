@@ -22,6 +22,9 @@ final class ActivityController extends AbstractController
     {
         $allActivities = $this->activityService->getAllActivities();
 
+        if (empty($allActivities)) {
+            return $this->json(["error" => "No hay actividades disponibles"], Response::HTTP_NOT_FOUND);
+        }
         return $this->json($allActivities);
     }
 
@@ -49,7 +52,6 @@ final class ActivityController extends AbstractController
         ActivityNewDTO $activityNewDTO
     ): JsonResponse {
         $createdActivity = $this->activityService->addActivity($activityNewDTO);
-
         return $this->json($createdActivity, Response::HTTP_CREATED);
     }
 
@@ -75,5 +77,16 @@ final class ActivityController extends AbstractController
         }
 
         return $this->json(["message" => "Actividad eliminada con éxito"]);
+    }
+
+
+    // METODOS HARDCODED PRUEBA!!
+
+    #[Route('/new-activity-hardcoded', name: 'post_activity_hardcoded', methods: ['POST'])]
+    public function newHardcodedActivity(): JsonResponse
+    {
+        $createdActivity = $this->activityService->addHardcodedActivity();
+
+        return $this->json($createdActivity, Response::HTTP_CREATED);
     }
 }

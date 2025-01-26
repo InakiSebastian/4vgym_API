@@ -146,4 +146,23 @@ class ActivityService
             instructors: []
         );
     }
+
+
+
+    // METODOS HARDCODED DE PRUEBA
+    private function createHardcodedActivity(): ActivityNewDTO
+    {
+        return new ActivityNewDTO(
+            date: new DateTime('2025-01-01'),
+            duration: 60,
+            activityTypeId: 1,
+            instructorIds: [1, 2]
+        );
+    }
+
+    public function addHardcodedActivity(): ActivityDTO
+    {
+        $hardcodedActivity = $this->createHardcodedActivity();
+        return $this->addActivity($hardcodedActivity);
+    }
 }
