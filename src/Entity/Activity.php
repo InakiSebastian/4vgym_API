@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\ActivityRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: ActivityRepository::class)]
 class Activity
@@ -23,6 +25,15 @@ class Activity
     #[ORM\ManyToOne(inversedBy: 'activities')]
     #[ORM\JoinColumn(nullable: false)]
     private ?ActivityType $activityType = null;
+
+    #[ORM\OneToMany(mappedBy: 'activity', targetEntity: ActivityInstructor::class, cascade: ['remove'])]
+    private Collection $activityInstructors;
+
+
+    public function __construct()
+{
+    $this->activityInstructors = new ArrayCollection();
+}
 
     public function getId(): ?int
     {
@@ -62,6 +73,15 @@ class Activity
     {
         $this->activityType = $activityType;
 
+        return $this;
+    }
+
+    public function getActivityInstructors():Collection {
+        return $this->activityInstructors;
+    }
+
+    public function setActivityInstructors(Collection $activityInstructors): static{
+        $this->activityInstructors = $activityInstructors;
         return $this;
     }
 
