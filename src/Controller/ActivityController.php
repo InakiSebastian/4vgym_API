@@ -20,7 +20,9 @@ final class ActivityController extends AbstractController
     #[Route('/activities', name: 'get_activities', methods: ['GET'])]
     public function getActivities(): JsonResponse
     {
-        return $this->json($this->activityService->getAllActivities());
+        $allActivities = $this->activityService->getAllActivities();
+
+        return $this->json($allActivities);
     }
 
     #[Route('/activities-date/{date}', name: 'get_activities_bydate', methods:['GET'])]
