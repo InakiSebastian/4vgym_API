@@ -10,6 +10,9 @@ class ActivityTypeDTO
         public int $id,
         public string $name,
         public int $instructorsNumber,
-        public string $icon){}
+        public ?string $icon){}
        
+        public function getIcon(): string{
+            return ($this->icon != null)? $this->icon : "icon.png";
+        }
 }

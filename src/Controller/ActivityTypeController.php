@@ -15,7 +15,7 @@ final class ActivityTypeController extends AbstractController
 {
     public function __construct(private ActivityTypeService $activityTypeService){}
 
-     #[Route('/activities', name: 'get_activities', methods: ['GET'])]
+     #[Route('/activity_types', name: 'get_activity_types', methods: ['GET'])]
     public function getRestaurants(#[MapQueryParameter] string $tipo = null): JsonResponse
     {
         return $this->json($this->activityTypeService->getAllActivityTypes());
