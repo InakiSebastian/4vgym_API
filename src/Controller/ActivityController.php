@@ -89,4 +89,28 @@ final class ActivityController extends AbstractController
 
         return $this->json($createdActivity, Response::HTTP_CREATED);
     }
+
+    #[Route('/activity-edit-hardcoded', name: 'put_edit_activity_hardcoded', methods:['PUT'])]
+    public function editHardcoded(): JsonResponse
+    {
+        $updatedActivity = $this->activityService->editHardcodedActivity();
+
+        if (!$updatedActivity) {
+            return $this->json(["error" => "Actividad no encontrada"], Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->json($updatedActivity);
+    }
+
+    #[Route('/activity-delete-hardcoded', name: 'delete_activity_hardcoded', methods:['DELETE'])]
+    public function deleteActivityHard(): JsonResponse
+    {
+        $deleted = $this->activityService->deleteActivityHardcoded();
+
+        if (!$deleted) {
+            return $this->json(["error" => "Actividad no encontrada"], Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->json(["message" => "Actividad eliminada con éxito"]);
+    }
 }
