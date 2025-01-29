@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class InstructorService
 {
+    /*
  
     public function __construct(private EntityManagerInterface $entityManager, private InstructorRepository $instructorRepository)
     {
@@ -29,6 +30,7 @@ class InstructorService
 
     }
 
+    
     public function createInstructor(Instructor $instructor)
     {
         $this->entityManager->persist($instructor);
@@ -36,6 +38,7 @@ class InstructorService
 
         return $instructor;
     }
+        */
 
  
 }

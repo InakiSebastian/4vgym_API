@@ -15,6 +15,7 @@ use Psr\Log\LoggerInterface;
 
 final class InstructorController extends AbstractController
 {
+    /*
 
     public function __construct(private InstructorService $instructorService)
     {
@@ -27,4 +28,5 @@ final class InstructorController extends AbstractController
         $logger->info(json_encode($test));
         return $this->json($this->instructorService->getAllInstructors());
     }
+        */
 }

@@ -2,39 +2,39 @@
 
 namespace App\Repository;
 
-use App\Entity\ActivityInstructor;
+use App\Entity\Monitor;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<ActivityInstructor>
+ * @extends ServiceEntityRepository<Monitor>
  */
-class ActivityInstructorRepository extends ServiceEntityRepository
+class MonitorRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, ActivityInstructor::class);
+        parent::__construct($registry, Monitor::class);
     }
 
     //    /**
-    //     * @return ActivityInstructor[] Returns an array of ActivityInstructor objects
+    //     * @return Monitor[] Returns an array of Monitor objects
     //     */
     //    public function findByExampleField($value): array
     //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
+    //        return $this->createQueryBuilder('m')
+    //            ->andWhere('m.exampleField = :val')
     //            ->setParameter('val', $value)
-    //            ->orderBy('a.id', 'ASC')
+    //            ->orderBy('m.id', 'ASC')
     //            ->setMaxResults(10)
     //            ->getQuery()
     //            ->getResult()
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?ActivityInstructor
+    //    public function findOneBySomeField($value): ?Monitor
     //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
+    //        return $this->createQueryBuilder('m')
+    //            ->andWhere('m.exampleField = :val')
     //            ->setParameter('val', $value)
     //            ->getQuery()
     //            ->getOneOrNullResult()

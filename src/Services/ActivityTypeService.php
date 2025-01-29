@@ -7,7 +7,7 @@ use App\Model\ActivityTypeDTO;
 
 class ActivityTypeService
 {
-    
+    /*
     public function __construct(private ActivityTypeRepository $activityTypeRepository) {}
 
 
@@ -22,4 +22,5 @@ class ActivityTypeService
             icon: "icono.png"
         ), $activityTypes);
     }
+        */
 }

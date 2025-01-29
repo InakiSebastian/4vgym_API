@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 final class ActivityController extends AbstractController
 {
     public function __construct(private ActivityService $activityService) {}
-
+    /*
     #[Route('/activities', name: 'get_activities', methods: ['GET'])]
     public function getActivities(): JsonResponse
     {
@@ -113,4 +113,5 @@ final class ActivityController extends AbstractController
 
         return $this->json(["message" => "Actividad eliminada con éxito"]);
     }
+        */
 }

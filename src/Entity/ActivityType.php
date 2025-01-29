@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\ActivityTypeRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ActivityTypeRepository::class)]
@@ -15,22 +13,11 @@ class ActivityType
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 255)]
     private ?string $name = null;
 
     #[ORM\Column]
-    private ?int $requiredInstructors = null;
-
-    /**
-     * @var Collection<int, Activity>
-     */
-    #[ORM\OneToMany(targetEntity: Activity::class, mappedBy: 'activityType')]
-    private Collection $activities;
-
-    public function __construct()
-    {
-        $this->activities = new ArrayCollection();
-    }
+    private ?int $number_monitors = null;
 
     public function getId(): ?int
     {
@@ -49,44 +36,14 @@ class ActivityType
         return $this;
     }
 
-    public function getRequiredInstructors(): ?int
+    public function getNumberMonitors(): ?int
     {
-        return $this->requiredInstructors;
+        return $this->number_monitors;
     }
 
-    public function setRequiredInstructors(int $requiredInstructors): static
+    public function setNumberMonitors(int $number_monitors): static
     {
-        $this->requiredInstructors = $requiredInstructors;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Activity>
-     */
-    public function getActivities(): Collection
-    {
-        return $this->activities;
-    }
-
-    public function addActivity(Activity $activity): static
-    {
-        if (!$this->activities->contains($activity)) {
-            $this->activities->add($activity);
-            $activity->setActivityType($this);
-        }
-
-        return $this;
-    }
-
-    public function removeActivity(Activity $activity): static
-    {
-        if ($this->activities->removeElement($activity)) {
-            // set the owning side to null (unless already changed)
-            if ($activity->getActivityType() === $this) {
-                $activity->setActivityType(null);
-            }
-        }
+        $this->number_monitors = $number_monitors;
 
         return $this;
     }

@@ -3,10 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\ActivityRepository;
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ActivityRepository::class)]
 class Activity
@@ -16,73 +16,89 @@ class Activity
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $date = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?int $duration = null;
-
-    #[ORM\ManyToOne(inversedBy: 'activities')]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?ActivityType $activityType = null;
+    private ?ActivityType $activity_type = null;
 
-    #[ORM\OneToMany(mappedBy: 'activity', targetEntity: ActivityInstructor::class, cascade: ['remove'])]
-    private Collection $activityInstructors;
+    /**
+     * @var Collection<int, Monitor>
+     */
+    #[ORM\ManyToMany(targetEntity: Monitor::class, inversedBy: 'activities')]
+    private Collection $monitors;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $date_start = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $date_end = null;
 
     public function __construct()
-{
-    $this->activityInstructors = new ArrayCollection();
-}
+    {
+        $this->monitors = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getDate(): ?\DateTimeInterface
-    {
-        return $this->date;
-    }
-
-    public function setDate(\DateTimeInterface $date): static
-    {
-        $this->date = $date;
-
-        return $this;
-    }
-
-    public function getDuration(): ?int
-    {
-        return $this->duration;
-    }
-
-    public function setDuration(?int $duration = 90): static
-    {
-        $this->duration = $duration;
-
-        return $this;
-    }
-
     public function getActivityType(): ?ActivityType
     {
-        return $this->activityType;
+        return $this->activity_type;
     }
 
-    public function setActivityType(?ActivityType $activityType): static
+    public function setActivityType(?ActivityType $activity_type): static
     {
-        $this->activityType = $activityType;
+        $this->activity_type = $activity_type;
 
         return $this;
     }
 
-    public function getActivityInstructors():Collection {
-        return $this->activityInstructors;
+    /**
+     * @return Collection<int, Monitor>
+     */
+    public function getMonitors(): Collection
+    {
+        return $this->monitors;
     }
 
-    public function setActivityInstructors(Collection $activityInstructors): static{
-        $this->activityInstructors = $activityInstructors;
+    public function addMonitor(Monitor $monitor): static
+    {
+        if (!$this->monitors->contains($monitor)) {
+            $this->monitors->add($monitor);
+        }
+
         return $this;
     }
 
+    public function removeMonitor(Monitor $monitor): static
+    {
+        $this->monitors->removeElement($monitor);
+
+        return $this;
+    }
+
+    public function getDateStart(): ?\DateTimeInterface
+    {
+        return $this->date_start;
+    }
+
+    public function setDateStart(\DateTimeInterface $date_start): static
+    {
+        $this->date_start = $date_start;
+
+        return $this;
+    }
+
+    public function getDateEnd(): ?\DateTimeInterface
+    {
+        return $this->date_end;
+    }
+
+    public function setDateEnd(\DateTimeInterface $date_end): static
+    {
+        $this->date_end = $date_end;
+
+        return $this;
+    }
 }

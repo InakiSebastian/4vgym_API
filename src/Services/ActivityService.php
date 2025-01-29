@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+/*
 use App\Entity\Activity;
 use App\Entity\ActivityInstructor;
 use App\Model\ActivityDTO;
@@ -16,10 +17,11 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+*/
 
 class ActivityService
 {
-    
+    /*
     public function __construct(
         private ActivityRepository $activityRepository,
         private ActivityInstructorRepository $activityInstructorRepository,
@@ -63,47 +65,62 @@ class ActivityService
 
 
     public function addActivity(ActivityNewDTO $newActivity): ActivityDTO
-    {
-        $activityType = $this->activityTypeRepository->find($newActivity->activityTypeId);
-        if (!$activityType) {
-            throw new HttpException(Response::HTTP_BAD_REQUEST, "El tipo de actividad no es válido.");
-        }
-        $instructors = $this->instructorRepository->findBy(['id' => $newActivity->instructorIds]);
-        if (count($instructors) < $activityType->getRequiredInstructors()) {
-            throw new HttpException(Response::HTTP_BAD_REQUEST, "No hay suficientes monitores para esta actividad.");
-        }
-        $activityEntity = new Activity();
-        $activityEntity->setDate($newActivity->date);
-        $activityEntity->setDuration($newActivity->duration);
-        $activityEntity->setActivityType($activityType);
-        $this->entityManager->persist($activityEntity);
-        $this->entityManager->flush();
-        foreach ($instructors as $instructor) {
-            $activityInstructor = new ActivityInstructor();
-            $activityInstructor->setActivity($activityEntity);
-            $activityInstructor->setInstructor($instructor);
-            $this->entityManager->persist($activityInstructor);
-        }
-        $this->entityManager->flush();
+{
+    $allowedStartTimes = ['09:00', '13:30', '17:30'];
+    $formattedTime = $newActivity->date->format('H:i');
 
-        return new ActivityDTO(
-            id: $activityEntity->getId(),
-            date: $activityEntity->getDate(),
-            duration: $activityEntity->getDuration(),
-            activityType: new ActivityTypeDTO(
-                id: $activityEntity->getActivityType()->getId(),
-                name: $activityEntity->getActivityType()->getName(),
-                instructorsNumber: $activityEntity->getActivityType()->getRequiredInstructors(),
-                icon: "icono.png"
-            ),
-            instructors: array_map(fn ($ai) => new InstructorDTO(
-                id: $ai->getInstructor()->getId(),
-                name: $ai->getInstructor()->getName(),
-                mail: $ai->getInstructor()->getEmail(),
-                phone: $ai->getInstructor()->getTelf()
-            ), $this->activityInstructorRepository->findBy(['activity' => $activityEntity]))
-        );
+    if (!in_array($formattedTime, $allowedStartTimes)) {
+        throw new HttpException(Response::HTTP_BAD_REQUEST, "Invalid start time. Allowed times are 09:00, 13:30, and 17:30.");
     }
+
+    if ($newActivity->duration !== 90) {
+        throw new HttpException(Response::HTTP_BAD_REQUEST, "Invalid duration. Activities must be exactly 90 minutes long.");
+    }
+
+    $activityType = $this->activityTypeRepository->find($newActivity->activityTypeId);
+    if (!$activityType) {
+        throw new HttpException(Response::HTTP_BAD_REQUEST, "The activity type is not valid.");
+    }
+
+    $instructors = $this->instructorRepository->findBy(['id' => $newActivity->instructorIds]);
+    if (count($instructors) < $activityType->getRequiredInstructors()) {
+        throw new HttpException(Response::HTTP_BAD_REQUEST, "Not enough instructors for this activity.");
+    }
+
+    $activityEntity = new Activity();
+    $activityEntity->setDate($newActivity->date);
+    $activityEntity->setDuration($newActivity->duration);
+    $activityEntity->setActivityType($activityType);
+    $this->entityManager->persist($activityEntity);
+    $this->entityManager->flush();
+
+    foreach ($instructors as $instructor) {
+        $activityInstructor = new ActivityInstructor();
+        $activityInstructor->setActivity($activityEntity);
+        $activityInstructor->setInstructor($instructor);
+        $this->entityManager->persist($activityInstructor);
+    }
+    $this->entityManager->flush();
+
+    return new ActivityDTO(
+        id: $activityEntity->getId(),
+        date: $activityEntity->getDate(),
+        duration: $activityEntity->getDuration(),
+        activityType: new ActivityTypeDTO(
+            id: $activityEntity->getActivityType()->getId(),
+            name: $activityEntity->getActivityType()->getName(),
+            instructorsNumber: $activityEntity->getActivityType()->getRequiredInstructors(),
+            icon: "icono.png"
+        ),
+        instructors: array_map(fn ($ai) => new InstructorDTO(
+            id: $ai->getInstructor()->getId(),
+            name: $ai->getInstructor()->getName(),
+            mail: $ai->getInstructor()->getEmail(),
+            phone: $ai->getInstructor()->getTelf()
+        ), $this->activityInstructorRepository->findBy(['activity' => $activityEntity]))
+    );
+}
+
 
 
     public function deleteActivity(int $id): bool
@@ -178,7 +195,7 @@ class ActivityService
 
     public function editHardcodedActivity(): ActivityDTO{
         $activityNew = $this->createForEdit();
-       return $this->editActivity(3, $activityNew);
+       return $this->editActivity(4, $activityNew);
     }
 
     public function deleteActivityHardcoded(): bool
@@ -189,9 +206,10 @@ class ActivityService
         }
         /*foreach ($activity->getActivityInstructors() as $ai) {
             $this->entityManager->remove($ai);
-        }*/
+        }
         $this->entityManager->remove($activity);
         $this->entityManager->flush();
         return true;
     }
+    */
 }
