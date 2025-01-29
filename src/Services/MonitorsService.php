@@ -29,6 +29,21 @@ class MonitorsService{
         return $monitor;
     }
 
+
+    public function updateMonitor(MonitorNewDto $monitorAdd, int $id):Monitor{
+        $monitor = $this->entityManager->getRepository(Monitor::class)->find($id);
+        if($monitor){
+            $monitor->setName($monitorAdd->getName());
+            $monitor->setEmail($monitorAdd->getEmail());
+            $monitor->setPhone($monitorAdd->getPhone());
+            $monitor->setPhoto($monitorAdd->getPhoto());
+            $this->entityManager->flush();
+            return $monitor;
+        }else{
+            return ["message"=>"Monitor no encontrado"];
+        }
+    }
+
 }
 
 ?>

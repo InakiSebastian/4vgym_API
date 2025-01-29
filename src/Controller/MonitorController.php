@@ -34,6 +34,16 @@ final class MonitorController extends AbstractController
         return $this->json($monitorCreado);
     }
 
+    #[Route('/monitors/{idMonitor}', name: 'editMonitor',methods:['PUT'])]
+    public function updateMonitor(#[MapRequestPayload(acceptFormat:'json',validationFailedStatusCode:Response::HTTP_NOT_FOUND)]MonitorNewDto $monitorNewDto, String $idMonitor): JsonResponse
+    {
+        $monitorActualizado = $this->monitorsService->updateMonitor($monitorNewDto, (int)$idMonitor);
+        if($monitorActualizado == null){
+            return $this->json(["message"=>"Monitor no encontrado"],Response::HTTP_NOT_FOUND);
+
+        }
+        return $this->json($monitorActualizado);
+    }
 
 
 }
