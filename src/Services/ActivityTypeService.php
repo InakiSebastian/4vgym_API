@@ -2,25 +2,29 @@
 
 namespace App\Services;
 
-use App\Repository\ActivityTypeRepository;
+use App\Entity\ActivityType;
 use App\Model\ActivityTypeDTO;
+use App\Repository\ActivityTypeRepository;
 
 class ActivityTypeService
 {
-    /*
-    public function __construct(private ActivityTypeRepository $activityTypeRepository) {}
+    public function __construct(private ActivityTypeRepository $repo) {}
 
-
-    public function getAllActivityTypes(): array
+    /**
+     * Devuelve array de ActivityTypeDTO
+     */
+    public function findAll(): array
     {
-        $activityTypes = $this->activityTypeRepository->findAll();
-
-        return array_map(fn($type) => new ActivityTypeDTO(
-            id: $type->getId(),
-            name: $type->getName(),
-            instructorsNumber: $type->getRequiredInstructors(),
-            icon: "icono.png"
-        ), $activityTypes);
+        $types = $this->repo->findAll();
+        return array_map(fn(ActivityType $t) => $this->toDTO($t), $types);
     }
-        */
+
+    private function toDTO(ActivityType $entity): ActivityTypeDTO
+    {
+        return new ActivityTypeDTO(
+            $entity->getId(),
+            $entity->getName(),
+            $entity->getNumberMonitors()
+        );
+    }
 }
