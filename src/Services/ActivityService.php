@@ -33,6 +33,7 @@ class ActivityService
         return array_map(fn(Activity $a) => $this->toDTO($a), $activities);
     }
 
+
     public function addActivity(ActivityNewDTO $dto): ActivityDTO
 {
     $start = new \DateTime($dto->date_start);
@@ -72,6 +73,7 @@ class ActivityService
     $this->em->flush();
     return $this->toDTO($activity);
 }
+
 
 public function updateActivity(int $id, ActivityNewDTO $dto): ?ActivityDTO
 {
@@ -116,6 +118,7 @@ public function updateActivity(int $id, ActivityNewDTO $dto): ?ActivityDTO
         return true;
     }
 
+    
     private function toDTO(Activity $a): ActivityDTO
     {
         $monDTOS = array_map(fn(Monitor $m) => new MonitorDTO(
