@@ -2,214 +2,124 @@
 
 namespace App\Services;
 
-/*
 use App\Entity\Activity;
-use App\Entity\ActivityInstructor;
+use App\Entity\Monitor;
+use App\Entity\ActivityType;
 use App\Model\ActivityDTO;
 use App\Model\ActivityNewDTO;
-use App\Model\InstructorDTO;
 use App\Model\ActivityTypeDTO;
+use App\Model\MonitorDTO;
 use App\Repository\ActivityRepository;
-use App\Repository\ActivityInstructorRepository;
 use App\Repository\ActivityTypeRepository;
-use App\Repository\InstructorRepository;
-use DateTime;
+use App\Repository\MonitorRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-*/
 
 class ActivityService
 {
-    /*
     public function __construct(
-        private ActivityRepository $activityRepository,
-        private ActivityInstructorRepository $activityInstructorRepository,
-        private ActivityTypeRepository $activityTypeRepository,
-        private InstructorRepository $instructorRepository,
-        private EntityManagerInterface $entityManager
+        private ActivityRepository $activityRepo,
+        private ActivityTypeRepository $typeRepo,
+        private MonitorRepository $monitorRepo,
+        private EntityManagerInterface $em
     ) {}
 
-
-    public function getAllActivities(): array
+    public function findActivities(\DateTimeInterface $date = null): array
     {
-        $activities = $this->activityRepository->findAll();
-        
-        return array_map(function (Activity $activity) {
-            return new ActivityDTO(
-                id: $activity->getId(),
-                date: $activity->getDate(),
-                duration: $activity->getDuration(),
-                activityType: new ActivityTypeDTO(
-                    id: $activity->getActivityType()->getId(),
-                    name: $activity->getActivityType()->getName(),
-                    instructorsNumber: $activity->getActivityType()->getRequiredInstructors(),
-                    icon: "icono.png"
-                ),
-                instructors: array_map(fn ($ai) => new InstructorDTO(
-                    id: $ai->getInstructor()->getId(),
-                    name: $ai->getInstructor()->getName(),
-                    mail: $ai->getInstructor()->getEmail(),
-                    phone: $ai->getInstructor()->getTelf()
-                ), $this->activityInstructorRepository->findBy(['activity' => $activity]))
-            );
-        }, $activities);
+        if ($date) {
+            $activities = $this->activityRepo->findByDate($date);
+        } else {
+            $activities = $this->activityRepo->findAll();
+        }
+        return array_map(fn(Activity $a) => $this->toDTO($a), $activities);
     }
 
-
-    public function getActivitiesByDate(DateTime $date): array
+    public function addActivity(ActivityNewDTO $dto): ActivityDTO
     {
-        $activities = $this->activityRepository->findBy(['date' => $date]);
-        return $this->getAllActivities($activities);
+        $type = $this->typeRepo->find($dto->activity_type_id);
+        if (!$type) {
+            throw new \Exception("ActivityType not found");
+        }
+
+        $monitors = $this->monitorRepo->findBy(['id' => $dto->monitors_id]);
+        if (count($monitors) < 1) {
+            throw new \Exception("No monitors found with given IDs");
+        }
+
+        $activity = new Activity();
+        $activity->setActivityType($type);
+        $activity->setDateStart($dto->date_start);
+        $activity->setDateEnd($dto->date_end);
+        foreach ($monitors as $m) {
+            $activity->addMonitor($m);
+        }
+
+        $this->em->persist($activity);
+        $this->em->flush();
+        return $this->toDTO($activity);
     }
 
+    public function updateActivity(int $id, ActivityNewDTO $dto): ?ActivityDTO
+    {
+        $activity = $this->activityRepo->find($id);
+        if (!$activity) {
+            return null;
+        }
 
-    public function addActivity(ActivityNewDTO $newActivity): ActivityDTO
-{
-    $allowedStartTimes = ['09:00', '13:30', '17:30'];
-    $formattedTime = $newActivity->date->format('H:i');
+        $type = $this->typeRepo->find($dto->activity_type_id);
+        if (!$type) {
+            throw new \Exception("ActivityType not found");
+        }
 
-    if (!in_array($formattedTime, $allowedStartTimes)) {
-        throw new HttpException(Response::HTTP_BAD_REQUEST, "Invalid start time. Allowed times are 09:00, 13:30, and 17:30.");
+        $activity->setActivityType($type);
+        $activity->setDateStart($dto->date_start);
+        $activity->setDateEnd($dto->date_end);
+        foreach ($activity->getMonitors() as $oldMon) {
+            $activity->removeMonitor($oldMon);
+        }
+
+        $monitors = $this->monitorRepo->findBy(['id' => $dto->monitors_id]);
+        foreach ($monitors as $m) {
+            $activity->addMonitor($m);
+        }
+
+        $this->em->flush();
+        return $this->toDTO($activity);
     }
-
-    if ($newActivity->duration !== 90) {
-        throw new HttpException(Response::HTTP_BAD_REQUEST, "Invalid duration. Activities must be exactly 90 minutes long.");
-    }
-
-    $activityType = $this->activityTypeRepository->find($newActivity->activityTypeId);
-    if (!$activityType) {
-        throw new HttpException(Response::HTTP_BAD_REQUEST, "The activity type is not valid.");
-    }
-
-    $instructors = $this->instructorRepository->findBy(['id' => $newActivity->instructorIds]);
-    if (count($instructors) < $activityType->getRequiredInstructors()) {
-        throw new HttpException(Response::HTTP_BAD_REQUEST, "Not enough instructors for this activity.");
-    }
-
-    $activityEntity = new Activity();
-    $activityEntity->setDate($newActivity->date);
-    $activityEntity->setDuration($newActivity->duration);
-    $activityEntity->setActivityType($activityType);
-    $this->entityManager->persist($activityEntity);
-    $this->entityManager->flush();
-
-    foreach ($instructors as $instructor) {
-        $activityInstructor = new ActivityInstructor();
-        $activityInstructor->setActivity($activityEntity);
-        $activityInstructor->setInstructor($instructor);
-        $this->entityManager->persist($activityInstructor);
-    }
-    $this->entityManager->flush();
-
-    return new ActivityDTO(
-        id: $activityEntity->getId(),
-        date: $activityEntity->getDate(),
-        duration: $activityEntity->getDuration(),
-        activityType: new ActivityTypeDTO(
-            id: $activityEntity->getActivityType()->getId(),
-            name: $activityEntity->getActivityType()->getName(),
-            instructorsNumber: $activityEntity->getActivityType()->getRequiredInstructors(),
-            icon: "icono.png"
-        ),
-        instructors: array_map(fn ($ai) => new InstructorDTO(
-            id: $ai->getInstructor()->getId(),
-            name: $ai->getInstructor()->getName(),
-            mail: $ai->getInstructor()->getEmail(),
-            phone: $ai->getInstructor()->getTelf()
-        ), $this->activityInstructorRepository->findBy(['activity' => $activityEntity]))
-    );
-}
-
-
 
     public function deleteActivity(int $id): bool
     {
-        $activity = $this->activityRepository->find($id);
+        $activity = $this->activityRepo->find($id);
         if (!$activity) {
             return false;
         }
-        $this->entityManager->remove($activity);
-        $this->entityManager->flush();
+        $this->em->remove($activity);
+        $this->em->flush();
         return true;
     }
 
-    public function editActivity(int $id, ActivityNewDTO $activityNewDTO): ?ActivityDTO
+    private function toDTO(Activity $a): ActivityDTO
     {
-        $activity = $this->activityRepository->find($id);
-        if (!$activity) {
-            return null;
-        }
-        $activityType = $this->activityTypeRepository->find($activityNewDTO->activityTypeId);
-        if (!$activityType) {
-            return null;
-        }
-        $activity->setDate($activityNewDTO->date);
-        $activity->setDuration($activityNewDTO->duration);
-        $activity->setActivityType($activityType);
+        $monDTOS = array_map(fn(Monitor $m) => new MonitorDTO(
+            $m->getId(),
+            $m->getName(),
+            $m->getEmail(),
+            $m->getPhone(),
+            $m->getPhoto()
+        ), $a->getMonitors()->toArray());
 
-        $this->entityManager->flush();
+        $type = $a->getActivityType();
+        $typeDTO = new ActivityTypeDTO(
+            $type->getId(),
+            $type->getName(),
+            $type->getNumberMonitors()
+        );
 
         return new ActivityDTO(
-            id: $activity->getId(),
-            date: $activity->getDate(),
-            duration: $activity->getDuration(),
-            activityType: new ActivityTypeDTO(
-                id: $activityType->getId(),
-                name: $activityType->getName(),
-                instructorsNumber: $activityType->getRequiredInstructors(),
-                icon: "icono.png"
-            ),
-            instructors: []
+            $a->getId(),
+            $typeDTO,
+            $monDTOS,
+            $a->getDateStart(),
+            $a->getDateEnd()
         );
     }
-
-
-
-    // METODOS HARDCODED DE PRUEBA
-    private function createHardcodedActivity(): ActivityNewDTO
-    {
-        return new ActivityNewDTO(
-            date: new DateTime('2025-01-01'),
-            duration: 90,
-            activityTypeId: 1,
-            instructorIds: [1]
-        );
-    }
-
-    private function createForEdit(): ActivityNewDTO
-    {
-        return new ActivityNewDTO(
-            date: new DateTime('2025-03-01'),
-            duration: 90,
-            activityTypeId: 2,
-            instructorIds: [1, 2]
-        );
-    }
-
-    public function addHardcodedActivity(): ActivityDTO
-    {
-        $hardcodedActivity = $this->createHardcodedActivity();
-        return $this->addActivity($hardcodedActivity);
-    }
-
-    public function editHardcodedActivity(): ActivityDTO{
-        $activityNew = $this->createForEdit();
-       return $this->editActivity(4, $activityNew);
-    }
-
-    public function deleteActivityHardcoded(): bool
-    {
-        $activity = $this->activityRepository->find(3);
-        if (!$activity) {
-            return false;
-        }
-        /*foreach ($activity->getActivityInstructors() as $ai) {
-            $this->entityManager->remove($ai);
-        }
-        $this->entityManager->remove($activity);
-        $this->entityManager->flush();
-        return true;
-    }
-    */
 }
