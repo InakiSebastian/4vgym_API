@@ -16,9 +16,11 @@ class ActivityNewDTO
         public array $monitors_id,
 
         #[Assert\NotBlank]
-        public DateTime $date_start,
+        #[Assert\Type("string")]
+        public string $date_start,
 
         #[Assert\NotBlank]
-        public DateTime $date_end
+        #[Assert\Type("string")]
+        public string $date_end
     ) {}
 }

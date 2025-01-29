@@ -34,57 +34,75 @@ class ActivityService
     }
 
     public function addActivity(ActivityNewDTO $dto): ActivityDTO
-    {
-        $type = $this->typeRepo->find($dto->activity_type_id);
-        if (!$type) {
-            throw new \Exception("ActivityType not found");
-        }
+{
+    $start = new \DateTime($dto->date_start);
+    $end   = new \DateTime($dto->date_end);
 
-        $monitors = $this->monitorRepo->findBy(['id' => $dto->monitors_id]);
-        if (count($monitors) < 1) {
-            throw new \Exception("No monitors found with given IDs");
-        }
-
-        $activity = new Activity();
-        $activity->setActivityType($type);
-        $activity->setDateStart($dto->date_start);
-        $activity->setDateEnd($dto->date_end);
-        foreach ($monitors as $m) {
-            $activity->addMonitor($m);
-        }
-
-        $this->em->persist($activity);
-        $this->em->flush();
-        return $this->toDTO($activity);
+    $startTime = $start->format('H:i');
+    $allowedTimes = ['09:00', '13:30', '17:30'];
+    if (!in_array($startTime, $allowedTimes)) {
+        throw new \Exception("Invalid start time. Allowed times: 09:00, 13:30, 17:30");
     }
 
-    public function updateActivity(int $id, ActivityNewDTO $dto): ?ActivityDTO
-    {
-        $activity = $this->activityRepo->find($id);
-        if (!$activity) {
-            return null;
-        }
-
-        $type = $this->typeRepo->find($dto->activity_type_id);
-        if (!$type) {
-            throw new \Exception("ActivityType not found");
-        }
-
-        $activity->setActivityType($type);
-        $activity->setDateStart($dto->date_start);
-        $activity->setDateEnd($dto->date_end);
-        foreach ($activity->getMonitors() as $oldMon) {
-            $activity->removeMonitor($oldMon);
-        }
-
-        $monitors = $this->monitorRepo->findBy(['id' => $dto->monitors_id]);
-        foreach ($monitors as $m) {
-            $activity->addMonitor($m);
-        }
-
-        $this->em->flush();
-        return $this->toDTO($activity);
+    $interval = $end->diff($start);
+    $durationInMinutes = $interval->h * 60 + $interval->i;
+    if ($durationInMinutes !== 90) {
+        throw new \Exception("Invalid duration. Must be exactly 90 minutes.");
     }
+
+    $type = $this->typeRepo->find($dto->activity_type_id);
+    if (!$type) {
+        throw new \Exception("ActivityType not found");
+    }
+
+    $monitors = $this->monitorRepo->findBy(['id' => $dto->monitors_id]);
+    if (count($monitors) < 1) {
+        throw new \Exception("No monitors found with given IDs");
+    }
+
+    $activity = new Activity();
+    $activity->setActivityType($type);
+    $activity->setDateStart($start);
+    $activity->setDateEnd($end);
+    foreach ($monitors as $m) {
+        $activity->addMonitor($m);
+    }
+
+    $this->em->persist($activity);
+    $this->em->flush();
+    return $this->toDTO($activity);
+}
+
+public function updateActivity(int $id, ActivityNewDTO $dto): ?ActivityDTO
+{
+    $activity = $this->activityRepo->find($id);
+    if (!$activity) {
+        return null;
+    }
+
+    $type = $this->typeRepo->find($dto->activity_type_id);
+    if (!$type) {
+        throw new \Exception("ActivityType not found");
+    }
+
+    $start = new \DateTime($dto->date_start);
+    $end   = new \DateTime($dto->date_end);
+    $activity->setActivityType($type);
+    $activity->setDateStart($start);
+    $activity->setDateEnd($end);
+
+    foreach ($activity->getMonitors() as $oldMon) {
+        $activity->removeMonitor($oldMon);
+    }
+    $monitors = $this->monitorRepo->findBy(['id' => $dto->monitors_id]);
+    foreach ($monitors as $m) {
+        $activity->addMonitor($m);
+    }
+
+    $this->em->flush();
+    return $this->toDTO($activity);
+}
+
 
     public function deleteActivity(int $id): bool
     {
@@ -92,6 +110,7 @@ class ActivityService
         if (!$activity) {
             return false;
         }
+
         $this->em->remove($activity);
         $this->em->flush();
         return true;
