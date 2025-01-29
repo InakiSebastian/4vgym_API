@@ -8,16 +8,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ActivityNewDTO
 {
     public function __construct(
+        public ?int $id,
         #[Assert\NotBlank]
-        public DateTime $date,
+        public int $activity_type_id,
+
+        #[Assert\Count(min: 1)]
+        public array $monitors_id,
 
         #[Assert\NotBlank]
-        public int $duration,
+        public DateTime $date_start,
 
-        #[Assert\NotBlank(message: "The type is mandatory!")]
-        public int $activityTypeId,
-
-        #[Assert\Count(min: 1, minMessage: "At least one instructor is required!")]
-        public array $instructorIds
+        #[Assert\NotBlank]
+        public DateTime $date_end
     ) {}
 }

@@ -8,9 +8,9 @@ class ActivityDTO
 {
     public function __construct(
         public int $id,
-        public DateTime $date,
-        public int $duration,
-        public ActivityTypeDTO $activityType,
-        public array $instructors
+        public ActivityTypeDTO $activity_type,
+        public array $monitors,
+        public DateTime $date_start,
+        public DateTime $date_end
     ) {}
 }
