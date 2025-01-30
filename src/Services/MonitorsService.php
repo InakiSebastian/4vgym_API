@@ -16,19 +16,19 @@ class MonitorsService{
 
     public function getMonitors(): array
     {
-        $lista =  $this->entityManager->getRepository(Monitor::class)->findAll();
+        $list =  $this->entityManager->getRepository(Monitor::class)->findAll();
 
-        $listaMonitores = [];
+        $monitorLIst = [];
 
-        foreach($lista as $monitor){
+        foreach($list as $monitor){
             $monitorDTO = new MonitorDTO($monitor->getId(),$monitor->getName(),$monitor->getEmail(),$monitor->getPhone(),$monitor->getPhoto());
-            $listaMonitores[] = $monitorDTO;
+            $monitorLIst[] = $monitorDTO;
         }
 
-        return $listaMonitores;
+        return $monitorLIst;
     }
 
-    public function crearMonitors(MonitorNewDto $monitorParam):MonitorDTO{
+    public function createMonitor(MonitorNewDto $monitorParam):MonitorDTO{
         $monitor = new Monitor();
         $monitor->setName($monitorParam->getName());
         $monitor->setEmail($monitorParam->getEmail());

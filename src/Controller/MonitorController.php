@@ -30,28 +30,28 @@ final class MonitorController extends AbstractController
     public function addMonitor(#[MapRequestPayload(acceptFormat:'json',validationFailedStatusCode:Response::HTTP_NOT_FOUND)]MonitorNewDto $monitorNewDto): JsonResponse
     {
 
-        $monitorCreado = $this->monitorsService->crearMonitors($monitorNewDto);
-        return $this->json($monitorCreado);
+        $createdMonitor = $this->monitorsService->createMonitor($monitorNewDto);
+        return $this->json($createdMonitor);
     }
 
     #[Route('/monitors/{idMonitor}', name: 'editMonitor',methods:['PUT'])]
     public function updateMonitor(#[MapRequestPayload(acceptFormat:'json',validationFailedStatusCode:Response::HTTP_NOT_FOUND)]MonitorNewDto $monitorNewDto, String $idMonitor): JsonResponse
     {
-        $monitorActualizado = $this->monitorsService->updateMonitor($monitorNewDto, (int)$idMonitor);
-        if($monitorActualizado == null){
+        $monitorUpdated = $this->monitorsService->updateMonitor($monitorNewDto, (int)$idMonitor);
+        if($monitorUpdated == null){
             return $this->json(["message"=>"Monitor no encontrado"],Response::HTTP_NOT_FOUND);
 
         }
-        return $this->json($monitorActualizado);
+        return $this->json($monitorUpdated);
     }
 
 
     #[Route('/monitors/{idMonitor}', name: 'deleteMonitor',methods:['DELETE'])]
-    public function deleteMonitor(string $idMonitor): JsonResponse
+    public function deleteMonitor(int $idMonitor): JsonResponse
     {
-        $resultado = $this->monitorsService->deleteMonitor((int)$idMonitor);
+        $result = $this->monitorsService->deleteMonitor((int)$idMonitor);
         
-        if($resultado){
+        if($result){
             return $this->json(["message"=>"Monitor eliminado"]);
         }else{
             return $this->json(["message"=>"Monitor no encontrado"],Response::HTTP_NOT_FOUND);
