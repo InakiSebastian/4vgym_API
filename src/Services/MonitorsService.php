@@ -44,6 +44,17 @@ class MonitorsService{
         }
     }
 
+    public function deleteMonitor(int $id):string{
+        $monitor = $this->entityManager->getRepository(Monitor::class)->find($id);
+        if($monitor){
+            $this->entityManager->remove($monitor);
+            $this->entityManager->flush();
+            return "Monitor eliminado";
+        }else{
+            return "Monitor no encontrado";
+        }
+    }
+
 }
 
 ?>
