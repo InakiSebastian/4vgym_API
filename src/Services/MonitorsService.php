@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Entity\Monitor;
+use App\Model\MonitorDTO;
 use App\Model\MonitorNewDto;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -15,10 +16,19 @@ class MonitorsService{
 
     public function getMonitors(): array
     {
-        return $this->entityManager->getRepository(Monitor::class)->findAll();
+        $lista =  $this->entityManager->getRepository(Monitor::class)->findAll();
+
+        $listaMonitores = [];
+
+        foreach($lista as $monitor){
+            $monitorDTO = new MonitorDTO($monitor->getId(),$monitor->getName(),$monitor->getEmail(),$monitor->getPhone(),$monitor->getPhoto());
+            $listaMonitores[] = $monitorDTO;
+        }
+
+        return $listaMonitores;
     }
 
-    public function crearMonitors(MonitorNewDto $monitorParam):Monitor{
+    public function crearMonitors(MonitorNewDto $monitorParam):MonitorDTO{
         $monitor = new Monitor();
         $monitor->setName($monitorParam->getName());
         $monitor->setEmail($monitorParam->getEmail());
@@ -26,11 +36,14 @@ class MonitorsService{
         $monitor->setPhoto($monitorParam->getPhoto());
         $this->entityManager->persist($monitor);
         $this->entityManager->flush();
-        return $monitor;
+        
+        $monitorDTO = new MonitorDTO($monitor->getId(),$monitor->getName(),$monitor->getEmail(),$monitor->getPhone(),$monitor->getPhoto());
+
+        return $monitorDTO;
     }
 
 
-    public function updateMonitor(MonitorNewDto $monitorAdd, int $id):Monitor{
+    public function updateMonitor(MonitorNewDto $monitorAdd, int $id):MonitorDTO{
         $monitor = $this->entityManager->getRepository(Monitor::class)->find($id);
         if($monitor){
             $monitor->setName($monitorAdd->getName());
@@ -38,9 +51,11 @@ class MonitorsService{
             $monitor->setPhone($monitorAdd->getPhone());
             $monitor->setPhoto($monitorAdd->getPhoto());
             $this->entityManager->flush();
-            return $monitor;
+
+            $monitorDTO = new MonitorDTO($monitor->getId(),$monitor->getName(),$monitor->getEmail(),$monitor->getPhone(),$monitor->getPhoto());
+            return $monitorDTO;
         }else{
-            return ["message"=>"Monitor no encontrado"];
+            return null;
         }
     }
 
