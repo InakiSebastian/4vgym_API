@@ -49,8 +49,13 @@ final class MonitorController extends AbstractController
     #[Route('/monitors/{idMonitor}', name: 'deleteMonitor',methods:['DELETE'])]
     public function deleteMonitor(string $idMonitor): JsonResponse
     {
-        $mensaje = $this->monitorsService->deleteMonitor((int)$idMonitor);
-        return $this->json($mensaje);
+        $resultado = $this->monitorsService->deleteMonitor((int)$idMonitor);
+        
+        if($resultado){
+            return $this->json(["message"=>"Monitor eliminado"]);
+        }else{
+            return $this->json(["message"=>"Monitor no encontrado"],Response::HTTP_NOT_FOUND);
+        }
        
     }
 
